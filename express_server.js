@@ -9,6 +9,12 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const bodyParser = require("body-parser");
+
+app.use(bodyParser.urlencoded({extended: true}));
+
+//////////// ROUTING BELOW
+
 app.get("/", (req,res) => {
   res.send("Hello!");
 });
@@ -20,7 +26,7 @@ app.get("/urls", (req,res) => {
 })
 
 app.get("/urls/new", (req, res) => {
-  res.render("ruls_new");
+  res.render("urls_new");
 })
 
 app.get("/urls/:shortURL", (req,res) => {
