@@ -13,6 +13,15 @@ const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({extended: true}));
 
+const generateRandomString = (length) => {
+  let ranString = "";
+  const alphNumChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < length; i++) {
+    ranString += alphNumChars.charAt(Math.round(Math.random() * alphNumChars.length));
+  }
+  return ranString;
+}
+
 //////////// ROUTING BELOW
 
 app.get("/", (req,res) => {
