@@ -10,7 +10,6 @@ const urlDatabase = {
 };
 
 const bodyParser = require("body-parser");
-
 app.use(bodyParser.urlencoded({extended: true}));
 
 const generateRandomString = (length) => {
@@ -39,11 +38,16 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("ok");
+  // res.send("ok");
+  const shortURL = generateRandomString(6);
+  urlDatabase[shortURL] = req.body.longURL;
+  console.log(urlDatabase)
+  const templateVars = { longURL: urlDatabase[req.params[shortURL]] }
+  res.redirect(`/urls/:${shortURL}`);
 })
 
 app.get("/urls/:shortURL", (req,res) => {
+  console.log(urlDatabase[req.params.shortURL])
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }
   res.render("urls_show", templateVars);
 })
