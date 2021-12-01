@@ -2,7 +2,7 @@
   "name": "tinyapp",
   "version": "1.0.0",
   "description": "An app for creating shorter URLs that redirect to longer ones",
-  "main": "index.js",
+  "main": "express_server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,7 +19,11 @@
   "homepage": "https://github.com/nicodann/tinyapp#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
-    "ejs": "^3.1.6",
-    "express": "^4.17.1"
+    "ejs": "^3.1.6"
+  },
+  "devDependencies": {
+    "express": "^4.17.1",
+    "iconv-lite": "^0.6.3",
+    "nodemon": "^2.0.15"
   }
 }
