@@ -37,10 +37,10 @@ const users = {
   }
 }
 
-const findEmail = (emailAddress) => {
+const getUser = (emailAddress) => {
   for (const user in users) {
     if (users[user].email === emailAddress) {
-      return true
+      return users[user];
     }
   }
 
@@ -83,7 +83,7 @@ app.get("/login", (req, res) => {
   const user = users[req.cookies.user_id];
   const templateVars = { user };
   res.render("login_form", templateVars);
-})
+});
 
 
 app.get("/urls/:shortURL", (req,res) => {
@@ -113,8 +113,16 @@ app.post("/urls", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
-  res.redirect("/urls");
+  const currentUser = getUser(req.body.email);
+
+  if (currentUser === undefined) {
+    res.status(403).send("Error: user not found");
+    } else if (req.body.password !== currentUser.password) {
+      res.status(403).send("Error: password is incorrect");
+    } else { 
+      res.cookie("user_id", currentUser.id);
+      res.redirect("/urls");
+    }
 });
 
 app.post("/logout", (req,res) => {
@@ -127,7 +135,7 @@ app.post("/register", (req,res) => {
   res.status(400).send("Error: email field is empty");
   } else if (req.body.password === '') {
     res.status(400).send("Error: password field is empty");
-  } else if (findEmail(req.body.email)) {
+  } else if (getUser(req.body.email)) {
     res.status(400).send("Error: this email is already registered");
   } else {
   const user = generateRandomString(7);
