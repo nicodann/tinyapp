@@ -7,9 +7,6 @@ app.set("view engine","ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-// const cookieParser = require('cookie-parser');
-// app.use(cookieParser());
-
 const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
@@ -17,6 +14,7 @@ app.use(cookieSession({
 }))
 
 const bcrypt = require('bcrypt');
+const getUserByEmail = require('./helpers.js');
 
 
 const generateRandomString = (length) => {
@@ -61,15 +59,7 @@ const users = {
   }
 }
 
-const getUser = (emailAddress) => {
-  for (const user in users) {
-    if (users[user].email === emailAddress) {
-      return users[user];
-    }
-  }
 
-  return false;
-}
 
 const checkLoggedIn = (user) => {
   if (user) {
@@ -162,7 +152,7 @@ app.post("/urls", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  const currentUser = getUser(req.body.email);
+  const currentUser = getUserByEmail(req.body.email, users);
   if (!currentUser) {
     res.status(403).send("Error: this email is not registered.");
     } else if (bcrypt.compareSync(req.body.password, currentUser.password)) {
@@ -184,7 +174,7 @@ app.post("/register", (req,res) => {
   res.status(400).send("Error: email field is empty");
   } else if (req.body.password === '') {
     res.status(400).send("Error: password field is empty");
-  } else if (getUser(req.body.email)) {
+  } else if (getUserByEmail(req.body.email, users)) {
     res.status(400).send("Error: this email is already registered");
   } else {
   const user = generateRandomString(7);
