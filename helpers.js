@@ -5,7 +5,7 @@ const generateRandomString = (length) => {
     ranString += alphNumChars.charAt(Math.round(Math.random() * alphNumChars.length));
   }
   return ranString;
-}
+};
 
 const getUserByEmail = (emailAddress, database) => {
   for (const user in database) {
@@ -13,25 +13,25 @@ const getUserByEmail = (emailAddress, database) => {
       return database[user];
     }
   }
-}
+};
 
 const checkLoggedIn = (user) => {
   if (user) {
-  return true;
+    return true;
   } else {
     return false;
   }
-}
+};
 
 const urlsForUser = (id, database) => {
-  const userURLs = {}
+  const userURLs = {};
   for (const objectKey in database) {
-    const objectValue = database[objectKey]
+    const objectValue = database[objectKey];
     if (objectValue.userID === id) {
       userURLs[objectKey] = objectValue;
     }
   }
   return userURLs;
-}
+};
 
 module.exports = { generateRandomString, getUserByEmail, checkLoggedIn, urlsForUser };
