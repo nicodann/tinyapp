@@ -3,7 +3,7 @@ const cookieSession = require('cookie-session');
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 
-const { generateRandomString, getUserByEmail, checkLoggedIn, urlsForUser } = require('./helpers.js');
+const { generateRandomString, getUserByEmail, urlsForUser } = require('./helpers.js');
 
 const app = express();
 const PORT = 8080;
@@ -17,7 +17,7 @@ const urlDatabase = {
     longURL: "http://www.google.com",
     userID: "userRandomID"
   },
-  "shortURL": {
+  "tT7m4K": {
     longURL: "http://www.blargle.com",
     userID: "user3RandomID"
   }
@@ -61,7 +61,7 @@ app.get("/", (_req,res) => {
 
 app.get("/urls", (req,res) => {
   const user = users[req.session.user_id];
-  let templateVars = { user, urls: {} };
+  const templateVars = { user, urls: {} };
 
   if (user) {
     templateVars.urls = urlsForUser(user.id, urlDatabase);
@@ -75,7 +75,7 @@ app.get("/urls/new", (req, res) => {
   const user = users[req.session.user_id];
   const templateVars = { user, urls: {} };
 
-  if (user && checkLoggedIn(user)) {
+  if (user) {
     templateVars.urls = urlsForUser(user.id, urlDatabase);
     res.render("urls_new", templateVars);
   } else {
@@ -159,7 +159,8 @@ app.post("/register", (req,res) => {
 
 app.post("/urls/:shortURL/delete", (req,res) => {
   const user = users[req.session.user_id];
-  if (user && checkLoggedIn(user)) {
+
+  if (user) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
@@ -169,7 +170,8 @@ app.post("/urls/:shortURL/delete", (req,res) => {
 
 app.post("/urls/:shortURL/update", (req,res) => {
   const user = users[req.session.user_id];
-  if (user && checkLoggedIn(user)) {
+
+  if (user) {
     urlDatabase[req.params.shortURL].longURL = req.body.newLongURL;
     res.redirect("/urls");
   } else {
@@ -177,6 +179,6 @@ app.post("/urls/:shortURL/update", (req,res) => {
   }
 });
 
-app.get("/hello", (req,res) => {
+app.get("/hello", (_req,res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });

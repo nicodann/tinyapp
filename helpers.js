@@ -15,14 +15,6 @@ const getUserByEmail = (emailAddress, database) => {
   }
 };
 
-const checkLoggedIn = (user) => {
-  if (user) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
 const urlsForUser = (id, database) => {
   const userURLs = {};
   for (const objectKey in database) {
@@ -34,4 +26,4 @@ const urlsForUser = (id, database) => {
   return userURLs;
 };
 
-module.exports = { generateRandomString, getUserByEmail, checkLoggedIn, urlsForUser };
+module.exports = { generateRandomString, getUserByEmail, urlsForUser };
