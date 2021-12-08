@@ -1,30 +1,12 @@
 const express = require('express');
+const cookieSession = require('cookie-session');
+const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
+
+const { generateRandomString, getUserByEmail, checkLoggedIn, urlsForUser } = require('./helpers.js');
+
 const app = express();
 const PORT = 8080;
-
-app.set("view engine","ejs");
-
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
-
-const cookieSession = require('cookie-session');
-app.use(cookieSession({
-  name: 'session',
-  secret: 'monkey madness'
-}))
-
-const bcrypt = require('bcrypt');
-const getUserByEmail = require('./helpers.js');
-
-
-const generateRandomString = (length) => {
-  let ranString = "";
-  const alphNumChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < length; i++) {
-    ranString += alphNumChars.charAt(Math.round(Math.random() * alphNumChars.length));
-  }
-  return ranString;
-}
 
 const urlDatabase = {
   "b2xVn2":{ 
@@ -59,27 +41,14 @@ const users = {
   }
 }
 
+app.set("view engine","ejs");
 
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieSession({ name: 'session', secret: 'monkey madness'}));
 
-const checkLoggedIn = (user) => {
-  if (user) {
-  return true;
-  } else {
-    return false;
-  }
-}
-
-const urlsForUser = (id) => {
-  const userURLs = {}
-  for (const objectKey in urlDatabase) {
-    const objectValue = urlDatabase[objectKey]
-    if (objectValue.userID === id) {
-      userURLs[objectKey] = objectValue;
-    }
-  }
-  return userURLs;
-}
-
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}`);
+});
 
 ////////////////////////////
 //////// GET REQUESTS //////
@@ -94,7 +63,7 @@ app.get("/urls", (req,res) => {
   const user = users[req.session.user_id];
   let templateVars = { user, urls: {} };
   if (user) {
-    templateVars.urls = urlsForUser(user.id) 
+    templateVars.urls = urlsForUser(user.id, urlDatabase) 
   }; 
 
   res.render("urls_index", templateVars);
@@ -106,7 +75,7 @@ app.get("/urls/new", (req, res) => {
   const user = users[req.session.user_id];
   const templateVars = { user, urls: {} };
   if (user && checkLoggedIn(user)) {
-    templateVars.urls = urlsForUser(user.id);
+    templateVars.urls = urlsForUser(user.id, urlDatabase);
     res.render("urls_new", templateVars);
   } else {
     res.render("login_form", templateVars);
@@ -149,7 +118,7 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6);
   urlDatabase[shortURL] = { "longURL": req.body.longURL, "userID": req.session.user_id }
   res.redirect(`/urls`);
-})
+});
 
 app.post("/login", (req, res) => {
   const currentUser = getUserByEmail(req.body.email, users);
@@ -182,7 +151,6 @@ app.post("/register", (req,res) => {
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
   users[user] = { "id": user, "email": email, "password": hashedPassword };
-  // res.cookie("user_id", user);
   req.session.user_id = user;
   res.redirect("/urls");
   }
@@ -210,8 +178,4 @@ app.post("/urls/:shortURL/update", (req,res) => {
 
 app.get("/hello", (req,res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}`);
 });
