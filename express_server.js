@@ -10,6 +10,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+const bcrypt = require('bcrypt');
+
+
 const generateRandomString = (length) => {
   let ranString = "";
   const alphNumChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -78,7 +81,6 @@ const urlsForUser = (id) => {
       userURLs[objectKey] = objectValue;
     }
   }
-  (console.log("userURLS:",userURLs));
   return userURLs;
 }
 
@@ -93,6 +95,7 @@ app.get("/", (_req,res) => {
 
 
 app.get("/urls", (req,res) => {
+  console.log(users);
   const user = users[req.cookies.user_id];
   let templateVars = { user, urls: {} };
   if (user) {
@@ -104,6 +107,7 @@ app.get("/urls", (req,res) => {
 
 
 app.get("/urls/new", (req, res) => {
+  
   const user = users[req.cookies.user_id];
   const templateVars = { user, urls: {} };
   if (user && checkLoggedIn(user)) {
@@ -150,15 +154,13 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6);
   urlDatabase[shortURL] = { "longURL": req.body.longURL, "userID": req.cookies.user_id }
   res.redirect(`/urls`);
-  console.log(urlDatabase);
 })
 
 app.post("/login", (req, res) => {
   const currentUser = getUser(req.body.email);
-  console.log(currentUser);
   if (!currentUser) {
     res.status(403).send("Error: this email is not registered.");
-    } else if (req.body.password !== currentUser.password) {
+    } else if (bcrypt.compareSync(req.body.password, currentUser.password)) {
       res.status(403).send("Error: the password is incorrect.");
     } else { 
       res.cookie("user_id", currentUser.id);
@@ -171,6 +173,9 @@ app.post("/logout", (req,res) => {
   res.redirect("/urls");
 });
 
+// const password = "purple-monkey-dinosaur"; // found in the req.params object
+// const hashedPassword = bcrypt.hashSync(password, 10);
+
 app.post("/register", (req,res) => {
   if (req.body.email === '') {
   res.status(400).send("Error: email field is empty");
@@ -182,7 +187,8 @@ app.post("/register", (req,res) => {
   const user = generateRandomString(7);
   const email = req.body.email;
   const password = req.body.password;
-  users[user] = { "id": user, "email": email, "password": password };
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  users[user] = { "id": user, "email": email, "password": hashedPassword };
   res.cookie("user_id", user);
   res.redirect("/urls");
   }
