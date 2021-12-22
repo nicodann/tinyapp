@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+
 const generateRandomString = (length) => {
   let ranString = "";
   const alphNumChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -26,4 +28,14 @@ const urlsForUser = (id, database) => {
   return userURLs;
 };
 
-module.exports = { generateRandomString, getUserByEmail, urlsForUser };
+const addNewUser = (req) => {
+    const userID = generateRandomString(7);
+    const email = req.body.email;
+    const password = req.body.password;
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    const user = { "id": userID, "email": email, "password": hashedPassword };
+    
+    return user;
+}
+
+module.exports = { generateRandomString, getUserByEmail, urlsForUser, addNewUser };

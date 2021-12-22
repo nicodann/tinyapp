@@ -3,7 +3,7 @@ const cookieSession = require('cookie-session');
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 
-const { generateRandomString, getUserByEmail, urlsForUser } = require('./helpers.js');
+const { generateRandomString, getUserByEmail, urlsForUser, addNewUser } = require('./helpers.js');
 
 const app = express();
 const PORT = 8080;
@@ -153,12 +153,9 @@ app.post("/register", (req,res) => {
   } else if (getUserByEmail(req.body.email, users)) {
     res.status(400).send("Error: this email is already registered");
   } else {
-    const user = generateRandomString(7);
-    const email = req.body.email;
-    const password = req.body.password;
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    users[user] = { "id": user, "email": email, "password": hashedPassword };
-    req.session.user_id = user;
+    const user = addNewUser(req)
+    users[user.id] = user;
+    req.session.user_id = user.id;
     res.redirect("/urls");
   }
 });
