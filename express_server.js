@@ -50,6 +50,12 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
 
+/// HASH DEFAULT USER PASSWORDS
+
+for (const user in users) {
+  users[user].password = bcrypt.hashSync(users[user].password, 10)
+}
+
 ////////////////////////////
 //////// GET REQUESTS //////
 ////////////////////////////
@@ -126,7 +132,7 @@ app.post("/login", (req, res) => {
   const currentUser = getUserByEmail(req.body.email, users);
   if (!currentUser) {
     res.status(403).send("Error: this email is not registered.");
-  } else if (bcrypt.compareSync(req.body.password, currentUser.password)) {
+  } else if (!bcrypt.compareSync(req.body.password, currentUser.password)) {
     res.status(403).send("Error: the password is incorrect.");
   } else {
     req.session.user_id = currentUser.id;
