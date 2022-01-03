@@ -29,13 +29,13 @@ const urlsForUser = (id, database) => {
 };
 
 const addNewUser = (req) => {
-    const userID = generateRandomString(7);
-    const email = req.body.email;
-    const password = req.body.password;
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    const user = { "id": userID, "email": email, "password": hashedPassword };
-    
-    return user;
-}
+  const userID = generateRandomString(7);
+  const email = req.body.email;
+  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  const user = { "id": userID, "email": email, "password": hashedPassword };
+  
+  return user;
+};
 
 module.exports = { generateRandomString, getUserByEmail, urlsForUser, addNewUser };

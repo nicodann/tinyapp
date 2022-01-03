@@ -53,7 +53,7 @@ app.listen(PORT, () => {
 /// HASH DEFAULT USER PASSWORDS
 
 for (const user in users) {
-  users[user].password = bcrypt.hashSync(users[user].password, 10)
+  users[user].password = bcrypt.hashSync(users[user].password, 10);
 }
 
 ////////////////////////////
@@ -66,7 +66,7 @@ app.get("/", (_req,res) => {
 
 
 app.get("/urls", (req,res) => {
-  const user = users[req.session.user_id];
+  const user = users[req.session.userID];
   const templateVars = { user, urls: {} };
 
   if (user) {
@@ -78,7 +78,7 @@ app.get("/urls", (req,res) => {
 
 
 app.get("/urls/new", (req, res) => {
-  const user = users[req.session.user_id];
+  const user = users[req.session.userID];
   const templateVars = { user, urls: {} };
 
   if (user) {
@@ -91,20 +91,20 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/register", (req,res) => {
-  const user = users[req.session.user_id];
+  const user = users[req.session.userID];
   const templateVars = { user };
   res.render("registration_form", templateVars);
 });
 
 app.get("/login", (req, res) => {
-  const user = users[req.session.user_id];
+  const user = users[req.session.userID];
   const templateVars = { user };
   res.render("login_form", templateVars);
 });
 
 
 app.get("/urls/:shortURL", (req,res) => {
-  const user = users[req.session.user_id];
+  const user = users[req.session.userID];
   const templateVars = {
     user,
     shortURL: req.params.shortURL,
@@ -124,7 +124,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6);
-  urlDatabase[shortURL] = { "longURL": req.body.longURL, "userID": req.session.user_id };
+  urlDatabase[shortURL] = { "longURL": req.body.longURL, "userID": req.session.userID };
   res.redirect(`/urls`);
 });
 
@@ -135,7 +135,7 @@ app.post("/login", (req, res) => {
   } else if (!bcrypt.compareSync(req.body.password, currentUser.password)) {
     res.status(403).send("Error: the password is incorrect.");
   } else {
-    req.session.user_id = currentUser.id;
+    req.session.userID = currentUser.id;
     res.redirect("/urls");
   }
 });
@@ -153,15 +153,15 @@ app.post("/register", (req,res) => {
   } else if (getUserByEmail(req.body.email, users)) {
     res.status(400).send("Error: this email is already registered");
   } else {
-    const user = addNewUser(req)
+    const user = addNewUser(req);
     users[user.id] = user;
-    req.session.user_id = user.id;
+    req.session.userID = user.id;
     res.redirect("/urls");
   }
 });
 
 app.post("/urls/:shortURL/delete", (req,res) => {
-  const user = users[req.session.user_id];
+  const user = users[req.session.userID];
 
   if (user) {
     delete urlDatabase[req.params.shortURL];
@@ -172,7 +172,7 @@ app.post("/urls/:shortURL/delete", (req,res) => {
 });
 
 app.post("/urls/:shortURL/update", (req,res) => {
-  const user = users[req.session.user_id];
+  const user = users[req.session.userID];
 
   if (user) {
     urlDatabase[req.params.shortURL].longURL = req.body.newLongURL;
